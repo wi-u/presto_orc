@@ -1,0 +1,80 @@
+{
+  "_leia-me": "Regras da Política Comercial. Percentuais em decimal (0.50 = 50%). Para mudar a política, edite este arquivo e rode os testes (npm test).",
+  "politica": "Política Comercial PRESTO 2026",
+  "perfis": {
+    "sul_rs": {
+      "nome": "Rio Grande do Sul",
+      "revenda": 0.50, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.00, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 14 dias"
+    },
+    "sul_scpr": {
+      "nome": "Santa Catarina e Paraná",
+      "revenda": 0.50, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.14, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 14 dias"
+    },
+    "sp_mg_rj": {
+      "nome": "São Paulo, Minas Gerais e Rio de Janeiro",
+      "revenda": 0.50, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.14, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 14 dias"
+    },
+    "es": {
+      "nome": "Espírito Santo",
+      "revenda": 0.54, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.10, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 14 dias"
+    },
+    "centro_oeste": {
+      "nome": "Centro-Oeste",
+      "revenda": 0.54, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.10, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 14 dias"
+    },
+    "nordeste": {
+      "nome": "Nordeste",
+      "revenda": 0.54, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.10, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 21 dias"
+    },
+    "norte": {
+      "nome": "Norte",
+      "revenda": 0.54, "consumo": 0.40, "consumo_importados": 0.25,
+      "adicional_importados_revenda": 0.10, "adicional_importados_consumo": 0.00,
+      "boleto_label": "Boleto 21 dias"
+    }
+  },
+  "ufs": {
+    "RS": "sul_rs", "SC": "sul_scpr", "PR": "sul_scpr",
+    "SP": "sp_mg_rj", "MG": "sp_mg_rj", "RJ": "sp_mg_rj", "ES": "es",
+    "GO": "centro_oeste", "MT": "centro_oeste", "MS": "centro_oeste", "DF": "centro_oeste",
+    "AL": "nordeste", "BA": "nordeste", "CE": "nordeste", "PE": "nordeste", "PB": "nordeste",
+    "PI": "nordeste", "SE": "nordeste", "MA": "nordeste", "RN": "nordeste",
+    "AC": "norte", "AM": "norte", "AP": "norte", "RO": "norte", "RR": "norte", "PA": "norte", "TO": "norte"
+  },
+  "nomes_uf": {
+    "AC":"Acre","AL":"Alagoas","AP":"Amapá","AM":"Amazonas","BA":"Bahia","CE":"Ceará","DF":"Distrito Federal",
+    "ES":"Espírito Santo","GO":"Goiás","MA":"Maranhão","MT":"Mato Grosso","MS":"Mato Grosso do Sul","MG":"Minas Gerais",
+    "PA":"Pará","PB":"Paraíba","PR":"Paraná","PE":"Pernambuco","PI":"Piauí","RJ":"Rio de Janeiro","RN":"Rio Grande do Norte",
+    "RS":"Rio Grande do Sul","RO":"Rondônia","RR":"Roraima","SC":"Santa Catarina","SP":"São Paulo","SE":"Sergipe","TO":"Tocantins"
+  },
+  "regioes_selecao": [
+    {"nome": "Sul", "ufs": ["RS","SC","PR"]},
+    {"nome": "Sudeste", "ufs": ["SP","MG","RJ","ES"]},
+    {"nome": "Centro-Oeste", "ufs": ["GO","MT","MS","DF"]},
+    {"nome": "Nordeste", "ufs": ["AL","BA","CE","PE","PB","PI","SE","MA","RN"]},
+    {"nome": "Norte", "ufs": ["AC","AM","AP","RO","RR","PA","TO"]}
+  ],
+  "linhas": {
+    "caixa_ferramentas": {"nome": "Caixa de ferramentas", "desconto": 0.10}
+  },
+  "extras": {
+    "volume": {"nome": "Atacado", "desconto": 0.10},
+    "gerencial": {"nome": "Gerencial", "desconto": 0.05}
+  },
+  "pagamento": {
+    "avista": {"nome": "À vista antecipado", "desconto": 0.05},
+    "boleto": {"desconto": 0.03}
+  }
+}

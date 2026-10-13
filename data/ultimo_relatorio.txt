@@ -1,0 +1,10 @@
+RELATÓRIO DE IMPORTAÇÃO — 13/10/2026 22:26
+Arquivo: P_Lista_Preco_OUT26_bruto.xlsx
+
+Itens: 397 -> 397 | novos: 0 | removidos: 0 | preço alterado: 0
+
+Já conhecidos e aceitos (17): 40303: múltiplo '4 col' tratado como 1; 40304: múltiplo '2 prat' tratado como 1; 40305: múltiplo '2 prat' tratado como 1; 40306: múltiplo '2 prat' tratado como 1; 40392: múltiplo '2 prat' tratado como 1; 40393: múltiplo '2 prat' tratado como 1; 40383: múltiplo '2 prat' tratado como 1; linha 192: 40341 repetido com os mesmos dados — contado uma vez; linha 193: 40342 repetido com os mesmos dados — contado uma vez; linha 194: 40343 repetido com os mesmos dados — contado uma vez; linha 195: 40344 repetido com os mesmos dados — contado uma vez; 40746: expositor sem preço (bônus); 40711: expositor sem preço (bônus); linha 454: 40018 repetido com os mesmos dados — contado uma vez; linha 455: 90101 repetido com os mesmos dados — contado uma vez; linha 459: 40013 repetido com os mesmos dados — contado uma vez; linha 460: 90100 repetido com os mesmos dados — contado uma vez
+
+AVISOS (0):
+
+ERROS (0):

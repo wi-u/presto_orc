@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#FF6B00">
+<title>Orçamento PRESTO</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../assets/icon-192.png">
+<link rel="apple-touch-icon" href="../assets/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<div id="restore-banner">
+  <span>📋 Encontramos um orçamento em andamento, salvo automaticamente.</span>
+  <button onclick="restoreDraft()">Continuar de onde parei</button>
+  <button onclick="discardDraft()">Começar novo</button>
+</div>
+
+<div id="topbar">
+  <div id="topbar-collapsed">
+    <div class="logo">ORÇAMENTO <span>/ PRESTO</span></div>
+    <a class="uf-chip" id="uf-chip" href="../">…</a>
+    <div class="policy-badges" id="pbadges"></div>
+    <button class="btn-ep inc-on" id="btn-inc-toggle" onclick="toggleIncentivo()" style="display:none;"></button>
+    <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Alternar modo claro/escuro">🌙</button>
+    <button class="btn-ep" onclick="togglePolicy()">⚙ Política</button>
+  </div>
+  <div id="policy-panel">
+    <div class="pg"><label>Tipo de Cliente</label>
+      <div class="seg">
+        <button class="sb active" id="btn-revenda" onclick="setP('tipo','revenda')">Revenda</button>
+        <button class="sb" id="btn-consumo" onclick="setP('tipo','consumo')">Consumo</button>
+        <button class="sb" id="btn-tabela" onclick="setP('tipo','tabela')">Tabela (bruto)</button>
+      </div>
+    </div>
+    <div class="pg"><label>Volume</label>
+      <div class="seg">
+        <button class="sb active" id="btn-normal" onclick="setP('volume','normal')">Normal</button>
+        <button class="sb" id="btn-atacado" onclick="setP('volume','atacado')">Atacado (−10%)</button>
+      </div>
+    </div>
+    <div class="pg"><label>Pagamento</label>
+      <div class="seg">
+        <button class="sb active" id="btn-avista" onclick="setP('pgto','avista')">À Vista (−5%)</button>
+        <button class="sb" id="btn-boleto" onclick="setP('pgto','boleto')">Boleto (−3%)</button>
+        <button class="sb" id="btn-none" onclick="setP('pgto','none')">Sem desconto</button>
+      </div>
+    </div>
+    <div class="pg"><label>Gerencial</label>
+      <div class="seg">
+        <button class="sb" id="btn-ger" onclick="toggleGerencial()">Desc. Gerencial (−5%)</button>
+      </div>
+    </div>
+    <div style="margin-left:auto;align-self:flex-end">
+      <button class="btn-ep" style="padding:5px 15px;" onclick="togglePolicy()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="search-area">
+  <div class="search-row">
+    <div class="search-wrap" id="sw">
+      <span class="si-icon">🔍</span>
+      <input type="text" id="si" placeholder="Buscar por código ou nome..." autocomplete="off"
+        oninput="onSI()" onkeydown="onSK(event)">
+      <div id="preview-box"></div>
+    </div>
+    <button class="btn-prev" onclick="openPrev()">Ver Prévia</button>
+    <button class="btn-add" onclick="addFromSearch()">+ Adicionar</button>
+  </div>
+</div>
+
+<div id="main">
+  <table id="bt">
+    <thead><tr>
+      <th style="width:62px">Código</th>
+      <th>Descrição</th>
+      <th style="width:82px;text-align:center">Qtd</th>
+      <th style="width:78px;text-align:center">Unid</th>
+      <th style="width:140px;text-align:right">Preço Unit.</th>
+      <th style="width:140px;text-align:right">Total</th>
+      <th style="width:66px;text-align:center">
+        <button class="btn-sort" id="sort-btn" onclick="toggleSort()">↓ Valor</button>
+      </th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="empty-st" class="empty-st">
+    <div class="ic">📋</div>
+    <p>Nenhum item no orçamento.<br>Busque um produto acima para começar.</p>
+  </div>
+</div>
+
+<div id="footer">
+  <div class="client-area">
+    <span class="client-label">Cliente</span>
+    <input class="client-input" id="cname" placeholder="Nome do cliente..." autocomplete="off">
+  </div>
+  <div class="vdiv"></div>
+  <div class="totals-block">
+    <div class="ti"><span class="tl">Itens</span><span class="tv" id="t-items">0</span></div>
+    <div class="ti"><span class="tl">Subtotal base</span><span class="tv" id="t-sub">R$ 0,00</span></div>
+    <div class="ti"><span class="tl">Desc. política</span><span class="tv disc" id="t-disc">−R$ 0,00</span></div>
+    <div class="ti"><span class="tl">Total s/ IPI</span><span class="tv hl" id="t-final">R$ 0,00</span></div>
+    <div class="vdiv"></div>
+    <div class="ti"><span class="tl">IPI do pedido</span><span class="tv ipi" id="t-ipi">+ R$ 0,00</span></div>
+    <div class="ti"><span class="tl">Total c/ IPI</span><span class="tv grand" id="t-grand">R$ 0,00</span></div>
+  </div>
+  <div class="footer-btns">
+    <button class="ba b-save" onclick="savePDF()">💾 Salvar PDF</button>
+    <button class="ba b-clear" onclick="confirmClear()">🗑 Limpar</button>
+  </div>
+</div>
+
+<div id="mo"><div id="md">
+  <h3 id="mo-title">Limpar Orçamento</h3>
+  <p id="mo-text">Todos os itens serão removidos.<br>Esta ação não pode ser desfeita.</p>
+  <div class="mbtns" id="mo-btns">
+    <button class="mbtn mc" onclick="closeModal()">Cancelar</button>
+    <button class="mbtn mk" onclick="doClear()">Limpar Tudo</button>
+  </div>
+</div></div>
+
+<script src="../assets/calc.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>

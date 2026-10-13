@@ -1,0 +1,4 @@
+{
+  "_leia-me": "Marca opcional no PDF. Use o link do app com &rep=ID (ex.: app/?uf=SP&rep=vidal). Sem &rep, o PDF sai só com a marca PRESTO.",
+  "vidal": {"nome": "Vidal Representações", "logo": "assets/reps/vidal.jpg"}
+}

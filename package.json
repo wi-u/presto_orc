@@ -1,0 +1,5 @@
+{
+  "name": "presto-orcamento",
+  "private": true,
+  "scripts": { "test": "node --test", "importar": "python3 scripts/importar.py" }
+}
