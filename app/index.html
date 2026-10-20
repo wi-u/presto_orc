@@ -2,128 +2,68 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#FF6B00">
-<title>Orçamento PRESTO</title>
-<link rel="manifest" href="../manifest.webmanifest">
-<link rel="icon" href="../assets/icon-192.png">
-<link rel="apple-touch-icon" href="../assets/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/app.css">
+<title>Orçamento PRESTO – Escolha sua região</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--border:#333;--text:#f2f2f2;--text2:#aaa;--orange:#FF6B00;}
+@media (prefers-color-scheme: light){:root{--bg:#f5f5f5;--surface:#fff;--border:#ddd;--text:#111;--text2:#666;}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;padding:28px 16px 60px;}
+.wrap{max-width:560px;margin:0 auto}
+.logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;letter-spacing:1px}
+.logo span{color:var(--orange)}
+h1{font-size:18px;font-weight:600;margin:22px 0 4px}
+p.sub{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:20px}
+h2{font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin:18px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.uf{background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:12px 8px;cursor:pointer;font-family:inherit;text-align:center;touch-action:manipulation}
+.uf b{display:block;font-family:'Rajdhani',sans-serif;font-size:22px;color:var(--orange)}
+.uf small{color:var(--text2);font-size:11px}
+.uf:hover,.uf:focus-visible{border-color:var(--orange);outline:none}
+#continuar{display:none;margin-bottom:6px;background:var(--orange);color:#fff;border:none;border-radius:9px;padding:14px;width:100%;font-size:15px;font-weight:600;cursor:pointer}
+.dica{margin-top:26px;font-size:12px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:14px}
+</style>
 </head>
 <body>
-<div id="restore-banner">
-  <span>📋 Encontramos um orçamento em andamento, salvo automaticamente.</span>
-  <button onclick="restoreDraft()">Continuar de onde parei</button>
-  <button onclick="discardDraft()">Começar novo</button>
+<div class="wrap">
+  <div class="logo">ORÇAMENTO <span>/ PRESTO</span></div>
+  <h1>Em qual estado fica o seu cliente?</h1>
+  <p class="sub">A região define a política de descontos e os preços do orçamento. Depois de escolher, <b>salve o endereço da página seguinte nos favoritos</b> (ou adicione à tela inicial) para abrir já configurado — inclusive sem internet.</p>
+  <button id="continuar" type="button"></button>
+  <div id="regioes"></div>
+  <p class="dica">Primeiro acesso: abra com internet ao menos uma vez para o app ficar disponível offline.</p>
 </div>
+<script>
+(async function(){
+  const qs = new URLSearchParams(location.search);
+  let rep = (qs.get('rep') || localStorage.getItem('presto_rep') || '').toLowerCase();
+  const suf = rep ? '&rep=' + encodeURIComponent(rep) : '';
+  const ir = uf => location.replace('app/?uf=' + uf + suf);
+  const saved = (localStorage.getItem('presto_uf') || '').toUpperCase();
 
-<div id="topbar">
-  <div id="topbar-collapsed">
-    <div class="logo">ORÇAMENTO <span>/ PRESTO</span></div>
-    <a class="uf-chip" id="uf-chip" href="../">…</a>
-    <div class="policy-badges" id="pbadges"></div>
-    <button class="btn-ep inc-on" id="btn-inc-toggle" onclick="toggleIncentivo()" style="display:none;"></button>
-    <button class="btn-icon" id="btn-theme" onclick="toggleTheme()" title="Alternar modo claro/escuro">🌙</button>
-    <button class="btn-ep" onclick="togglePolicy()">⚙ Política</button>
-  </div>
-  <div id="policy-panel">
-    <div class="pg"><label>Tipo de Cliente</label>
-      <div class="seg">
-        <button class="sb active" id="btn-revenda" onclick="setP('tipo','revenda')">Revenda</button>
-        <button class="sb" id="btn-consumo" onclick="setP('tipo','consumo')">Consumo</button>
-        <button class="sb" id="btn-tabela" onclick="setP('tipo','tabela')">Tabela (bruto)</button>
-      </div>
-    </div>
-    <div class="pg"><label>Volume</label>
-      <div class="seg">
-        <button class="sb active" id="btn-normal" onclick="setP('volume','normal')">Normal</button>
-        <button class="sb" id="btn-atacado" onclick="setP('volume','atacado')">Atacado (−10%)</button>
-      </div>
-    </div>
-    <div class="pg"><label>Pagamento</label>
-      <div class="seg">
-        <button class="sb active" id="btn-avista" onclick="setP('pgto','avista')">À Vista (−5%)</button>
-        <button class="sb" id="btn-boleto" onclick="setP('pgto','boleto')">Boleto (−3%)</button>
-        <button class="sb" id="btn-none" onclick="setP('pgto','none')">Sem desconto</button>
-      </div>
-    </div>
-    <div class="pg"><label>Gerencial</label>
-      <div class="seg">
-        <button class="sb" id="btn-ger" onclick="toggleGerencial()">Desc. Gerencial (−5%)</button>
-      </div>
-    </div>
-    <div style="margin-left:auto;align-self:flex-end">
-      <button class="btn-ep" style="padding:5px 15px;" onclick="togglePolicy()">Fechar</button>
-    </div>
-  </div>
-</div>
+  let pol;
+  try { pol = await fetch('data/politica.json').then(r => r.json()); }
+  catch(e){ document.getElementById('regioes').textContent = 'Não consegui carregar os dados. Verifique a internet e tente de novo.'; return; }
 
-<div id="search-area">
-  <div class="search-row">
-    <div class="search-wrap" id="sw">
-      <span class="si-icon">🔍</span>
-      <input type="text" id="si" placeholder="Buscar por código ou nome..." autocomplete="off"
-        oninput="onSI()" onkeydown="onSK(event)">
-      <div id="preview-box"></div>
-    </div>
-    <button class="btn-prev" onclick="openPrev()">Ver Prévia</button>
-    <button class="btn-add" onclick="addFromSearch()">+ Adicionar</button>
-  </div>
-</div>
+  // já configurado? vai direto (a menos que a pessoa tenha pedido para trocar)
+  if (saved && pol.ufs[saved] && location.hash !== '#trocar') return ir(saved);
 
-<div id="main">
-  <table id="bt">
-    <thead><tr>
-      <th style="width:62px">Código</th>
-      <th>Descrição</th>
-      <th style="width:82px;text-align:center">Qtd</th>
-      <th style="width:78px;text-align:center">Unid</th>
-      <th style="width:140px;text-align:right">Preço Unit.</th>
-      <th style="width:140px;text-align:right">Total</th>
-      <th style="width:66px;text-align:center">
-        <button class="btn-sort" id="sort-btn" onclick="toggleSort()">↓ Valor</button>
-      </th>
-    </tr></thead>
-    <tbody id="tbody"></tbody>
-  </table>
-  <div id="empty-st" class="empty-st">
-    <div class="ic">📋</div>
-    <p>Nenhum item no orçamento.<br>Busque um produto acima para começar.</p>
-  </div>
-</div>
-
-<div id="footer">
-  <div class="client-area">
-    <span class="client-label">Cliente</span>
-    <input class="client-input" id="cname" placeholder="Nome do cliente..." autocomplete="off">
-  </div>
-  <div class="vdiv"></div>
-  <div class="totals-block">
-    <div class="ti"><span class="tl">Itens</span><span class="tv" id="t-items">0</span></div>
-    <div class="ti"><span class="tl">Subtotal base</span><span class="tv" id="t-sub">R$ 0,00</span></div>
-    <div class="ti"><span class="tl">Desc. política</span><span class="tv disc" id="t-disc">−R$ 0,00</span></div>
-    <div class="ti"><span class="tl">Total s/ IPI</span><span class="tv hl" id="t-final">R$ 0,00</span></div>
-    <div class="vdiv"></div>
-    <div class="ti"><span class="tl">IPI do pedido</span><span class="tv ipi" id="t-ipi">+ R$ 0,00</span></div>
-    <div class="ti"><span class="tl">Total c/ IPI</span><span class="tv grand" id="t-grand">R$ 0,00</span></div>
-  </div>
-  <div class="footer-btns">
-    <button class="ba b-save" onclick="savePDF()">💾 Salvar PDF</button>
-    <button class="ba b-clear" onclick="confirmClear()">🗑 Limpar</button>
-  </div>
-</div>
-
-<div id="mo"><div id="md">
-  <h3 id="mo-title">Limpar Orçamento</h3>
-  <p id="mo-text">Todos os itens serão removidos.<br>Esta ação não pode ser desfeita.</p>
-  <div class="mbtns" id="mo-btns">
-    <button class="mbtn mc" onclick="closeModal()">Cancelar</button>
-    <button class="mbtn mk" onclick="doClear()">Limpar Tudo</button>
-  </div>
-</div></div>
-
-<script src="../assets/calc.js"></script>
-<script src="../assets/app.js"></script>
+  if (saved && pol.ufs[saved]) {
+    const b = document.getElementById('continuar');
+    b.style.display = 'block'; b.textContent = 'Continuar com ' + pol.nomes_uf[saved] + ' (' + saved + ')';
+    b.onclick = () => ir(saved);
+  }
+  document.getElementById('regioes').innerHTML = pol.regioes_selecao.map(r =>
+    '<h2>' + r.nome + '</h2><div class="grid">' + r.ufs.map(u =>
+      '<button class="uf" type="button" data-uf="' + u + '"><b>' + u + '</b><small>' + pol.nomes_uf[u] + '</small></button>').join('') + '</div>').join('');
+  document.querySelectorAll('.uf').forEach(el => el.onclick = () => { localStorage.setItem('presto_uf', el.dataset.uf); ir(el.dataset.uf); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
 </body>
 </html>
