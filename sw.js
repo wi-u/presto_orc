@@ -1,7 +1,7 @@
 /* Service worker: deixa o app e os preços disponíveis offline.
  * Estratégia: tenta a internet primeiro (assim preços novos chegam sozinhos);
  * se estiver offline ou lento (>4s), usa a cópia guardada no aparelho. */
-const CACHE = 'presto-v2';
+const CACHE = 'presto-v3';
 const ARQUIVOS = [
   './', './app/', './manifest.webmanifest',
   './assets/app.css', './assets/app.js', './assets/calc.js',
