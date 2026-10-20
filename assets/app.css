@@ -51,15 +51,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .search-wrap input:focus{border-color:var(--orange);}
 .search-wrap input::placeholder{color:var(--text3);}
 .si-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none;}
-.btn-prev{background:var(--surface3);border:1px solid var(--border2);color:var(--text2);padding:7px 13px;border-radius:7px;cursor:pointer;font-size:12px;font-family:'Inter',sans-serif;transition:all .15s;touch-action:manipulation;}
-.btn-prev:hover{border-color:var(--orange);color:var(--orange);}
 .btn-add{background:var(--orange);border:none;color:#fff;padding:7px 15px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;transition:background .15s;touch-action:manipulation;}
 .btn-add:hover{background:var(--orange2);}
 
 /* PREVIEW DROPDOWN */
 #preview-box{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:8px;z-index:200;max-height:340px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);}
 #preview-box.open{display:block;}
-.pi{display:flex;align-items:center;gap:9px;padding:8px 11px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;position:relative;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+.pi{display:flex;align-items:center;gap:9px;padding:8px 11px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;position:relative;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:pan-y;}
 .pi:last-child{border-bottom:none;}
 .pi:hover{background:var(--surface3);}
 .pi.in-cart{background:var(--orange-dim);}
@@ -162,7 +160,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
   .policy-badges{order:3;flex-basis:100%;width:100%;}
   .search-row{flex-wrap:wrap;row-gap:7px;}
   .search-wrap{flex:1 1 100%;max-width:100%;order:1;}
-  .btn-prev{flex:1;order:2;}
   .btn-add{flex:1;order:3;}
 }
 

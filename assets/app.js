@@ -116,6 +116,7 @@ function searchProducts(q){
 }
 function renderPreview(list){
   const box = document.getElementById('preview-box');
+  const keepScroll = box.scrollTop;
   if(!list.length){ box.innerHTML = '<div class="pi-empty">Nenhum produto encontrado.</div>'; box.classList.add('open'); return; }
   box.innerHTML = list.map(p=>{
     const inCart = items.some(it=>it.prod.cod===p.cod);
@@ -124,40 +125,52 @@ function renderPreview(list){
     const qv = document.getElementById('si').value.trim().toLowerCase();
     const oldBadge = (COD_NOVO_ANTIGO[p.cod] && COD_NOVO_ANTIGO[p.cod]===qv) ? `<span class="pi-oldbadge">antigo ${qv}</span>` : '';
     const addedTag = inCart ? '<span class="pi-addedtag">✓ no orç.</span>' : '';
-    return `<div class="pi ${inCart?'in-cart':''}" data-cod="${p.cod}"
-      onmousedown="piPressStart('${p.cod}')" onmouseup="piPressEnd('${p.cod}')" onmouseleave="piPressCancel()"
-      ontouchstart="piPressStart('${p.cod}')" ontouchend="piPressEnd('${p.cod}')" ontouchcancel="piPressCancel()">
+    return `<div class="pi ${inCart?'in-cart':''}" data-cod="${p.cod}">
       <span class="pi-cod">${p.cod}</span>
       <span class="pi-desc">${p.descricao}${oldBadge}${incBadge}${addedTag}</span>
       <span class="pi-price">${fmt(unit)}</span>
     </div>`;
   }).join('');
   box.classList.add('open');
+  box.scrollTop = keepScroll;
 }
-let piPressTimer=null, piPressLong=false, piPressCod=null;
-function piPressStart(cod){
-  piPressCod=cod; piPressLong=false;
-  clearTimeout(piPressTimer);
-  piPressTimer=setTimeout(()=>{
-    piPressLong=true;
-    addItem(cod);
-    const list = searchProducts(document.getElementById('si').value);
-    renderPreview(list);
-    if(navigator.vibrate) navigator.vibrate(25);
-  }, 480);
-}
-function piPressEnd(cod){
-  clearTimeout(piPressTimer);
-  if(!piPressLong && cod===piPressCod){ quickAdd(cod); }
-  piPressLong=false; piPressCod=null;
-}
-function piPressCancel(){
-  clearTimeout(piPressTimer);
-  piPressLong=false; piPressCod=null;
-}
+// Toque curto = adiciona e fecha · segurar (~0,5s) parado = adiciona e mantém a lista aberta.
+// Se o dedo se mexer (rolagem) ou o navegador assumir a rolagem (pointercancel), cancela tudo.
+const PI_HOLD_MS = 480, PI_MOVE_PX = 10;
+let piTimer=null, piCod=null, piLong=false, piX=0, piY=0;
+function piReset(){ clearTimeout(piTimer); piTimer=null; piCod=null; piLong=false; }
+(function initPreviewPress(){
+  const box = document.getElementById('preview-box');
+  box.addEventListener('contextmenu', e=>e.preventDefault());
+  box.addEventListener('pointerdown', e=>{
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    const row = e.target.closest('.pi'); if(!row) return;
+    piReset();
+    piCod = row.dataset.cod; piX = e.clientX; piY = e.clientY;
+    piTimer = setTimeout(()=>{
+      if(!piCod) return;
+      piLong = true;
+      addItem(piCod);
+      renderPreview(searchProducts(document.getElementById('si').value));
+      if(navigator.vibrate) navigator.vibrate(25);
+    }, PI_HOLD_MS);
+  });
+  box.addEventListener('pointermove', e=>{
+    if(!piCod) return;
+    if(Math.abs(e.clientX-piX)>PI_MOVE_PX || Math.abs(e.clientY-piY)>PI_MOVE_PX) piReset();
+  });
+  box.addEventListener('pointerup', ()=>{
+    const cod = piCod, wasLong = piLong;
+    clearTimeout(piTimer);
+    piReset();
+    if(cod && !wasLong) quickAdd(cod);
+  });
+  box.addEventListener('pointercancel', piReset);   // o navegador começou a rolar
+  box.addEventListener('pointerleave', piReset);
+  box.addEventListener('scroll', piReset, {passive:true});
+})();
 function onSI(){ renderPreview(searchProducts(document.getElementById('si').value)); }
 function onSK(e){ if(e.key==='Enter'){ addFromSearch(); } }
-function openPrev(){ renderPreview(searchProducts(document.getElementById('si').value)); }
 function addFromSearch(){
   const v = document.getElementById('si').value.trim();
   if(!v) return;
@@ -319,6 +332,12 @@ function discardDraft(){
   localStorage.removeItem(DRAFT_KEY);
   document.getElementById('restore-banner').classList.remove('show');
 }
+// ── FRETE (textos em data/politica.json → "frete") ──
+function textoFrete(){
+  const f = POLITICA.frete || {};
+  for(const r of Object.values(f.regioes||{})){ if((r.ufs||[]).includes(UF)) return r.texto; }
+  return f.padrao || 'Valor do frete a ser adicionado no pedido';
+}
 // ── PDF EXPORT ──
 function savePDF(){
   if(!items.length){ alert('Adicione ao menos um item ao orçamento.'); return; }
@@ -357,6 +376,7 @@ function savePDF(){
         <span style="color:#4a90d9;font-size:9px;margin-left:3px;border:1px solid #4a90d9;padding:0 3px;border-radius:2px">${ipiStr}</span>
         <br><span style="color:#aaa;font-size:9px">c/IPI: ${fmt(unitIpi)}</span>
       </td>
+      <td style="text-align:center;font-size:10px;color:#555">${p.st||'—'}</td>
       <td style="text-align:right">
         <strong>${fmt(total)}</strong>
         <br><span style="color:#aaa;font-size:9px">c/IPI: ${fmt(totalIpi)}</span>
@@ -380,13 +400,15 @@ function savePDF(){
     body{font-family:Arial,sans-serif;background:#fff;color:#111;margin:0;padding:14mm 16mm;font-size:11px;}
     .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:3px solid #FF6B00;padding-bottom:8px;}
     .logos{display:flex;align-items:center;gap:14px;}
-    .logos img.presto{height:38px;object-fit:contain;}
+    .logos img.presto{height:44px;object-fit:contain;}
     .logos img.vidal{height:50px;object-fit:contain;}
     .sep{width:1px;height:36px;background:#ddd;}
     .meta{text-align:right;color:#666;font-size:10px;line-height:1.7;}
     .cl{font-size:13px;font-weight:700;color:#111;}
     .tablebase{font-size:9px;color:#bbb;}
-    .paycond{display:inline-block;background:#FFF3E8;border:1px solid #FF6B00;color:#FF6B00;font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;margin-bottom:8px;}
+    .condrow{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;}
+    .paycond{display:inline-block;background:#FFF3E8;border:1px solid #FF6B00;color:#FF6B00;font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;white-space:nowrap;}
+    .frete{text-align:right;font-size:11px;font-weight:700;color:#333;max-width:60%;line-height:1.4;padding-top:3px;}
     table{width:100%;border-collapse:collapse;}
     th{background:#FF6B00;color:#fff;padding:5px 7px;text-align:left;font-size:10px;}
     td{padding:4px 7px;border-bottom:1px solid #eee;vertical-align:middle;line-height:1.4;}
@@ -411,7 +433,10 @@ function savePDF(){
       <div class="tablebase">Tabela Base ${TABELA.tabela} - ${policyCode} - Atualização ${dLabel}</div>
     </div>
   </div>
-  <div class="paycond">Condição de pagamento: ${pLbl}</div>
+  <div class="condrow">
+    <div class="paycond">Condição de pagamento: ${pLbl}</div>
+    <div class="frete">${textoFrete()}</div>
+  </div>
   <table><thead><tr>
     <th style="width:22px">#</th>
     <th style="width:55px">Código</th>
@@ -420,6 +445,7 @@ function savePDF(){
     <th style="width:40px;text-align:center">Qtd</th>
     <th style="width:55px;text-align:center">Unid</th>
     <th style="width:128px;text-align:right">Preço Unit.</th>
+    <th style="width:34px;text-align:center">ST</th>
     <th style="width:118px;text-align:right">Total</th>
   </tr></thead>
   <tbody>${rows}</tbody></table>
@@ -427,7 +453,6 @@ function savePDF(){
     <div class="tr"><span>Subtotal base:</span><span>${fmt(sub)}</span></div>
     <div class="tr" style="color:#27ae60"><span>Descontos aplicados:</span><span>−${fmt(polDiscAmt)}</span></div>
     <div class="tr hl"><span>TOTAL s/ IPI:</span><span>${fmt(fin)}</span></div>
-    <div class="tr bi"><span>IPI do pedido:</span><span>+ ${fmt(ipiAmt)}</span></div>
     <div class="tr gr"><span>TOTAL c/ IPI:</span><span>${fmt(fin+ipiAmt)}</span></div>
   </div></div>
   <div class="ft">${REP ? REP.nome + ' – ' : ''}PRESTO | Tabela de Preços ${TABELA.tabela} | ${UF}</div>
